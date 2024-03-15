@@ -1,0 +1,62 @@
+Function ExportQueryToExcelSLR() As Boolean
+    On Error GoTo ErrorHandler
+    
+    Dim db As DAO.Database
+    Dim rs As DAO.Recordset
+    Dim xlApp As Object
+    Dim xlBook As Object
+    Dim xlSheet As Object
+    Dim strSQL As String
+    Dim strExcelFile As String
+    
+    ' Set the SQL query to export
+    strSQL = "SELECT * FROM [Shopping List Report];"
+    
+    ' Set the path for the Excel file
+    strExcelFile = "F:\File\Directory.xlsx"
+    
+    ' Initialize Access objects
+    Set db = CurrentDb
+    
+    ' Open the recordset
+    Set rs = db.OpenRecordset(strSQL)
+    
+    ' Initialize Excel objects
+    Set xlApp = CreateObject("Excel.Application")
+    Set xlBook = xlApp.Workbooks.Add
+    Set xlSheet = xlBook.Worksheets(1)
+    
+    ' Export data to Excel
+    With xlSheet
+        ' Copy field names
+        For i = 0 To rs.Fields.Count - 1
+            .Cells(1, i + 1).Value = rs.Fields(i).Name
+        Next i
+        ' Copy data
+        .Range("A2").CopyFromRecordset rs
+    End With
+    
+    ' Save Excel file and close objects
+    xlApp.DisplayAlerts = False ' Suppress alerts
+    xlBook.SaveAs strExcelFile
+    xlApp.DisplayAlerts = True ' Restore alerts
+    xlBook.Close
+    xlApp.Quit
+    
+    ' Release objects
+    Set xlSheet = Nothing
+    Set xlBook = Nothing
+    Set xlApp = Nothing
+    rs.Close
+    Set rs = Nothing
+    Set db = Nothing
+    
+    ExportQueryToExcel = True ' Export completed successfully
+    
+    Exit Function
+    
+ErrorHandler:
+    MsgBox "An error occurred: " & Err.Description, vbExclamation
+    ExportQueryToExcel = False ' Export failed
+End Function
+
