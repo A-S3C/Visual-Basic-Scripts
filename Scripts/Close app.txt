@@ -1,0 +1,9 @@
+Option Compare Database
+
+Function CloseApp()
+
+' Close Access application
+Application.Quit
+
+
+End Function
